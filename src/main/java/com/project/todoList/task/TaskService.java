@@ -12,11 +12,11 @@ import com.project.todoList.user.UserService;
 public class TaskService {
 
   private final TaskRepository taskRepository;
-  private final UserService userService;
+
 
   public TaskService(TaskRepository taskRepository, UserService userService) {
     this.taskRepository = taskRepository;
-    this.userService = userService;
+
   }
 
 	public List<Task> getTasks() {
@@ -31,9 +31,8 @@ public class TaskService {
     return "Task not found";
   }
 
-  public String createTask(Task task, Long userId) {
-    User user = userService.getUser(userId);
-    task.setUser(user);
+  public String createTask(Task task) {
+
     taskRepository.save(task);
     return "Task created";
   }
@@ -68,8 +67,8 @@ public class TaskService {
     return "Task not found";
   }
 
-  public List<Task> getTasksByUser(Long userId) {
-    return taskRepository.findByUserId(userId);
+  public List<Task> getTasksByUser(User user) {
+    return taskRepository.findByUser(user);
   }
 
 

@@ -2,13 +2,8 @@ package com.project.todoList.task;
 
 import com.project.todoList.user.User;
 
-import jakarta.annotation.Generated;
 import jakarta.annotation.Nonnull;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "task")
@@ -20,7 +15,10 @@ public class Task {
     sequenceName = "task_sequence",
     allocationSize = 1
   )
-  @Generated(value = {"jakarta.persistence.generator.sequence"})
+  @GeneratedValue(
+    generator = "task_sequence",
+    strategy = GenerationType.SEQUENCE
+  )
   private Long id;
   private String title;
   private String description;
@@ -54,6 +52,13 @@ public class Task {
     this.user = user;
   }
 
+    public Task( String title, String description, String status, String priority, String dueDate) {
+    this.title = title;
+    this.description = description;
+    this.status = status;
+    this.priority = priority;
+    this.dueDate = dueDate;
+  }
   public Long getId() { return id; }
   public void setId(Long id) { this.id = id; }
 
@@ -72,9 +77,6 @@ public class Task {
   public String getDueDate() { return dueDate; }
   public void setDueDate(String dueDate) { this.dueDate = dueDate; }
 
-  public User getuser() { return user; }
-  public void setuser(User user) { this.user = user; }
-
-  public void setUser(User user) { this.user = user; }
   public User getUser() { return user; }
+  public void setUser(User user) { this.user = user; }
 }

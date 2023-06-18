@@ -74,5 +74,9 @@ public class User {
       ", password='" + password + '\'' +
       '}';
   }
+
+  public static User getUser(Long userId, UserRepository userRepository) {
+    return null;
+  }
 }
 

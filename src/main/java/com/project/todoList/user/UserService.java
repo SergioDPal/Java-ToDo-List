@@ -26,7 +26,7 @@ public class UserService {
     return "User not found";
   }
 
-  public User getUser(Long userId) {
+  public static User getUser(Long userId,UserRepository userRepository) {
     Optional<User> user = userRepository.findUserById(userId);
     return user.get();
   }
