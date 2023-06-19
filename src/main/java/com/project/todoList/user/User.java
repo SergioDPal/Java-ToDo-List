@@ -38,7 +38,6 @@ public class User {
       this.email = email;
     }
     
-    System.out.printf("AAAAAAAAAAAAAAAAAAAAAA: " + password);
     if (password.trim().isEmpty()) {
       this.password = null;
     } else {

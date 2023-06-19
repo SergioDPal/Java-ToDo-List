@@ -1,8 +1,11 @@
 package com.project.todoList.user;
-
+import com.JwtTokenUtil;
+import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class UserService {
@@ -17,17 +20,21 @@ public class UserService {
     return userRepository;
   }
 
-  public String getUser(User user) {
+  public User getUser(User user) {
     Optional<User> userFromEmail = userRepository.findUserByEmail(user.getEmail());
-    System.out.println(user);
     if (userFromEmail.isPresent()) {
-      return userFromEmail.toString();
+      return userFromEmail.get();
     }
-    return "User not found";
+    throw new IllegalStateException("User not found");
   }
 
   public static User getUser(Long userId,UserRepository userRepository) {
     Optional<User> user = userRepository.findUserById(userId);
+    return user.get();
+  }
+
+    public static User getUser(String username,UserRepository userRepository) {
+    Optional<User> user = userRepository.findUserByUsername(username);
     return user.get();
   }
 
@@ -50,23 +57,36 @@ public class UserService {
     return "User not found";
   }
 
-  public String updateUser(Long userId, String username, String email, String password) {
+  public String updateUser(Map<String,String> userData, Long userId) {
     Optional<User> user = userRepository.findUserById(userId);
     if (user.isPresent()) {
-      if (username != null && !username.isEmpty()) {
-        user.get().setUsername(username);
+      if (userData.get("password") != null) {
+        user.get().setPassword(userData.get("password"));
       }
-      if (email != null && !email.isEmpty()) {
-        user.get().setEmail(email);
+      if (userData.get("email") != null) {
+        user.get().setEmail(userData.get("email"));
       }
-      if (password != null && !password.isEmpty()) {
-        user.get().setPassword(password);
+      if (userData.get("username") != null) {
+        user.get().setUsername(userData.get("username"));
       }
       System.out.println(user.get());
       userRepository.save(user.get());
       return "User updated";
     }
     return "User not found";
+  }
+
+  public String loginUser(String email, String password) {
+    Optional<User> userFromEmail = userRepository.findUserByEmail(email);
+    if (userFromEmail.isPresent()) {
+      String dbPassword = userFromEmail.get().getPassword();
+      if (new BCryptPasswordEncoder().matches(password, dbPassword)) {
+        JwtTokenUtil jwt = new JwtTokenUtil();  
+        return jwt.generateToken(userFromEmail.get().getUsername());
+      }
+
+    }
+    return "Error logging in";
   }
   
 }

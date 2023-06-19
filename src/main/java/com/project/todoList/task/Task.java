@@ -1,5 +1,7 @@
 package com.project.todoList.task;
 
+import java.time.LocalDate;
+
 import com.project.todoList.user.User;
 
 import jakarta.annotation.Nonnull;
@@ -24,7 +26,8 @@ public class Task {
   private String description;
   private String status;
   private String priority;
-  private String dueDate;
+  //we declare the dueDate using java.time.LocalDate
+  private LocalDate dueDate;
 
   @ManyToOne(optional = false)
   @Nonnull
@@ -33,7 +36,7 @@ public class Task {
 
   public Task() {}
 
-  public Task(String title, String description, String status, String priority, String dueDate, User user) {
+  public Task(String title, String description, String status, String priority, LocalDate dueDate, User user) {
     this.title = title;
     this.description = description;
     this.status = status;
@@ -42,7 +45,7 @@ public class Task {
     this.user = user;
   }
 
-  public Task(Long id, String title, String description, String status, String priority, String dueDate, User user) {
+  public Task(Long id, String title, String description, String status, String priority, LocalDate dueDate, User user) {
     this.id = id;
     this.title = title;
     this.description = description;
@@ -52,7 +55,7 @@ public class Task {
     this.user = user;
   }
 
-    public Task( String title, String description, String status, String priority, String dueDate) {
+    public Task( String title, String description, String status, String priority, LocalDate dueDate) {
     this.title = title;
     this.description = description;
     this.status = status;
@@ -74,8 +77,8 @@ public class Task {
   public String getPriority() { return priority; }  
   public void setPriority(String priority) { this.priority = priority; }
 
-  public String getDueDate() { return dueDate; }
-  public void setDueDate(String dueDate) { this.dueDate = dueDate; }
+  public LocalDate getDueDate() { return dueDate; }
+  public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
 
   public User getUser() { return user; }
   public void setUser(User user) { this.user = user; }

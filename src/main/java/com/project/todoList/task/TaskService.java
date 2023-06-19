@@ -23,12 +23,12 @@ public class TaskService {
     return taskRepository.findAll();
 	}
 
-  public String getTask(Long taskId) {
+  public Task getTask(Long taskId) {
     Optional<Task> task = taskRepository.findById(taskId);
     if (task.isPresent()) {
-      return task.toString();
+      return task.get();
     }
-    return "Task not found";
+    throw new IllegalStateException("Task not found");
   }
 
   public String createTask(Task task) {

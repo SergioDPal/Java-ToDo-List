@@ -1,7 +1,6 @@
 package com.project.todoList.task;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,9 +8,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.JwtTokenUtil;
 import com.project.todoList.user.User;
 import com.project.todoList.user.UserRepository;
 import com.project.todoList.user.UserService;
@@ -29,18 +30,13 @@ public class TaskController {
   }
 
   @PostMapping
-  public String createTask(@RequestBody Map<String, Map<String,String>> body) {
-
-    Map<String, String> taskData = body.get("task");
-    Task task = new Task(
-      taskData.get("title"),
-      taskData.get("description"),
-      taskData.get("status"),
-      taskData.get("priority"),
-      taskData.get("dueDate")
-    );
-    Long userId = Long.valueOf(body.get("user").get("userId"));
-    User user = UserService.getUser(userId,userRepository);
+  public String createTask(@RequestBody Task task, @RequestHeader("Authorization") String token) {
+    JwtTokenUtil jwt = new JwtTokenUtil(); 
+    if (jwt.isTokenExpired(token)) {
+      return "Token Expired";
+    }
+    String username = jwt.getUsernameFromToken(token);
+    User user = UserService.getUser(username,userRepository);
     task.setUser(user);
 
     return taskService.createTask(task);
@@ -53,7 +49,7 @@ public class TaskController {
   
   @GetMapping(path = "{taskId}")
   public String getTask(@PathVariable Long taskId) {
-    return taskService.getTask(taskId);
+    return taskService.getTask(taskId).toString();
   }
 
   @GetMapping(path = "user/{userId}")
@@ -64,15 +60,33 @@ public class TaskController {
 
 
   @PutMapping(path = "{taskId}")
-  public String updateTask(@RequestBody Task task , @PathVariable Long taskId) {
+  public String updateTask(@RequestBody Task task, @RequestHeader("Authorization") String token, @PathVariable Long taskId) {
+    if (!isAuthorized(token, taskId)) {
+      return "Unauthorized";
+    }
     return taskService.updateTask(task, taskId);
   }
 
   @DeleteMapping(path = "{taskId}")
-  public String deleteTask(@PathVariable Long taskId) {
+  public String deleteTask(@PathVariable Long taskId, @RequestHeader("Authorization") String token) {
+    if (!isAuthorized(token, taskId)) {
+      return "Unauthorized";
+    }
     return taskService.deleteTask(taskId);
   }
 
 
+  private boolean isAuthorized(String token, Long taskId) {
+    JwtTokenUtil jwt = new JwtTokenUtil(); 
+    if (jwt.isTokenExpired(token)) {
+      return false;
+    }
+    String taskUsername = taskService.getTask(taskId).getUser().getUsername();
+    String TokenUsername = jwt.getUsernameFromToken(token);
+    if (!taskUsername.equals(TokenUsername)) {
+      return false;
+    }
+    return true;
+  }
 
 }
