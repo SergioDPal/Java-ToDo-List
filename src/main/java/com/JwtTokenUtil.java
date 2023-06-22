@@ -64,8 +64,6 @@ public class JwtTokenUtil implements Serializable {
 	//   compaction of the JWT to a URL-safe string 
 	private String doGenerateToken(Map<String, Object> claims, String subject) {
 
-
-    System.out.println("secretbytes bit amount: " + secret.length * 8);
     SecretKey secretKey = Keys.hmacShaKeyFor(secret);
 
 		return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))

@@ -3,6 +3,8 @@ import com.JwtTokenUtil;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.naming.AuthenticationException;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +47,7 @@ public class UserService {
       return "User already exists";
     }
     userRepository.save(user);
-    return user.toString();
+    return "User created";
   }
 
   public String deleteUser(Long userId) {
@@ -76,17 +78,27 @@ public class UserService {
     return "User not found";
   }
 
-  public String loginUser(String email, String password) {
-    Optional<User> userFromEmail = userRepository.findUserByEmail(email);
-    if (userFromEmail.isPresent()) {
-      String dbPassword = userFromEmail.get().getPassword();
-      if (new BCryptPasswordEncoder().matches(password, dbPassword)) {
-        JwtTokenUtil jwt = new JwtTokenUtil();  
-        return jwt.generateToken(userFromEmail.get().getUsername());
-      }
+public UserDTO loginUser(String email, String password) throws AuthenticationException {
+  Optional<User> userFromEmail = userRepository.findUserByEmail(email);
 
+  if (userFromEmail.isPresent()) {
+    String dbPassword = userFromEmail.get().getPassword();
+
+    if (new BCryptPasswordEncoder().matches(password, dbPassword)) {
+      JwtTokenUtil jwt = new JwtTokenUtil();
+      String token = jwt.generateToken(userFromEmail.get().getUsername());
+
+      UserDTO userDTO = new UserDTO();
+      userDTO.setToken(token);
+      userDTO.setUsername(userFromEmail.get().getUsername());
+      userDTO.setEmail(userFromEmail.get().getEmail());
+      userDTO.setId(userFromEmail.get().getId());
+      userDTO.setMessage("Login successful");
+      return userDTO;
     }
-    return "Error logging in";
   }
+
+  throw new AuthenticationException("Error logging in");
+}
   
 }

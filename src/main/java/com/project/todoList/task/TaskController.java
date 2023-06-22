@@ -2,6 +2,7 @@ package com.project.todoList.task;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import com.project.todoList.user.User;
 import com.project.todoList.user.UserRepository;
 import com.project.todoList.user.UserService;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/task")
 public class TaskController {
