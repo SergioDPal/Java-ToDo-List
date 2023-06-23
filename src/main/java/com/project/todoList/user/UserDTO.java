@@ -18,6 +18,14 @@ public class UserDTO {
     this.id = id;
   }
 
+  public UserDTO(String token, String username, String email, String message, Long id) {
+    this.token = token;
+    this.username = username;
+    this.email = email;
+    this.message = message;
+    this.id = id;
+  }
+  
   public String getToken() {
     return token;
   }

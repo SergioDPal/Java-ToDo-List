@@ -88,12 +88,8 @@ public UserDTO loginUser(String email, String password) throws AuthenticationExc
       JwtTokenUtil jwt = new JwtTokenUtil();
       String token = jwt.generateToken(userFromEmail.get().getUsername());
 
-      UserDTO userDTO = new UserDTO();
-      userDTO.setToken(token);
-      userDTO.setUsername(userFromEmail.get().getUsername());
-      userDTO.setEmail(userFromEmail.get().getEmail());
-      userDTO.setId(userFromEmail.get().getId());
-      userDTO.setMessage("Login successful");
+      UserDTO userDTO = new UserDTO(token, userFromEmail.get().getUsername(), userFromEmail.get().getEmail(),
+          "Login successful", userFromEmail.get().getId());
       return userDTO;
     }
   }

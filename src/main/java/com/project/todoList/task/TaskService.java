@@ -19,14 +19,16 @@ public class TaskService {
 
   }
 
-	public List<Task> getTasks() {
-    return taskRepository.findAll();
+  public List<TaskDTO> getTasks() {
+    List<Task> tasks = taskRepository.findAll();
+    return TaskDTO.convert(tasks);
+    
 	}
 
-  public Task getTask(Long taskId) {
+  public TaskDTO getTask(Long taskId) {
     Optional<Task> task = taskRepository.findById(taskId);
     if (task.isPresent()) {
-      return task.get();
+      return new TaskDTO(task.get());
     }
     throw new IllegalStateException("Task not found");
   }
@@ -67,8 +69,9 @@ public class TaskService {
     return "Task not found";
   }
 
-  public List<Task> getTasksByUser(User user) {
-    return taskRepository.findByUser(user);
+  public List<TaskDTO> getTasksByUser(User user) {
+    List<Task> tasks = taskRepository.findByUser(user);
+    return TaskDTO.convert(tasks);
   }
 
 

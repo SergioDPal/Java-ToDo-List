@@ -49,43 +49,46 @@ public class UserController {
     return ResponseEntity.ok(response);
   }
 
-@PostMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-public ResponseEntity<UserDTO> loginUser(@RequestBody Map<String, String> user) {
-  String email = user.get("email");
-  String password = user.get("password");
+  @PostMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<UserDTO> loginUser(@RequestBody Map<String, String> user) {
+    String email = user.get("email");
+    String password = user.get("password");
 
-  try {
-    UserDTO userDTO = userService.loginUser(email, password);
-    return ResponseEntity.ok(userDTO);
-  } catch (AuthenticationException e) {
-    UserDTO errorDTO = new UserDTO();
-    errorDTO.setMessage(e.getMessage());
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDTO);
+    try {
+      UserDTO userDTO = userService.loginUser(email, password);
+      return ResponseEntity.ok(userDTO);
+    } catch (AuthenticationException e) {
+      UserDTO errorDTO = new UserDTO();
+      errorDTO.setMessage(e.getMessage());
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDTO);
+    }
   }
-}
 
   @DeleteMapping(path="{userId}", produces = MediaType.APPLICATION_JSON_VALUE) 
   public ResponseEntity<Map<String,String>> deleteUser(
-    Map<String, String> responseMessage,
+    Map<String, String> responseBody,
       @PathVariable("userId") Long userId, 
       @RequestHeader("Authorization") String token){  
     if (!isAuthorized(token, userId)) {
-      responseMessage.put("message", "Unauthorized");
-      return ResponseEntity.status(401).body(responseMessage);
+      responseBody.put("message", "Unauthorized");
+      return ResponseEntity.status(401).body(responseBody);
     };
-    responseMessage.put("message", userService.deleteUser(userId));
-    return ResponseEntity.ok(responseMessage);
+    responseBody.put("message", userService.deleteUser(userId));
+    return ResponseEntity.ok(responseBody);
   }
   
-  @PutMapping(path="{userId}")
-  public String updateUser(
+  @PutMapping(path="{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Map<String,String>> updateUser(
+    Map<String, String> responseBody,
       @PathVariable("userId") Long userId,
       @RequestBody Map<String, String> userData, 
       @RequestHeader("Authorization") String token){
     if (!isAuthorized(token, userId)) {
-      return "Unauthorized";
+      responseBody.put("message", "Unauthorized");
+      return ResponseEntity.status(401).body(responseBody);
     }
-    return userService.updateUser(userData, userId);
+    responseBody.put("message", userService.updateUser(userData, userId));
+    return ResponseEntity.ok(responseBody);
   }
   
   private boolean isAuthorized(String token, Long userId) {

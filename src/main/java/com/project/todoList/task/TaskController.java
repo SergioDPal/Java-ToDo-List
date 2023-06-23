@@ -1,17 +1,12 @@
 package com.project.todoList.task;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.JwtTokenUtil;
 import com.project.todoList.user.User;
@@ -32,49 +27,60 @@ public class TaskController {
   }
 
   @PostMapping
-  public String createTask(@RequestBody Task task, @RequestHeader("Authorization") String token) {
+  public ResponseEntity<Map<String,String>> createTask(@RequestBody Task task, @RequestHeader("Authorization") String token) {
     JwtTokenUtil jwt = new JwtTokenUtil(); 
+    Map<String, String> responseBody = new HashMap<>();
     if (jwt.isTokenExpired(token)) {
-      return "Token Expired";
+      responseBody.put("message", "Unauthorized");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
     }
     String username = jwt.getUsernameFromToken(token);
     User user = UserService.getUser(username,userRepository);
     task.setUser(user);
-
-    return taskService.createTask(task);
+    responseBody.put("message", taskService.createTask(task));
+    return ResponseEntity.ok(responseBody);
   }
 
   @GetMapping
-  public List<Task> getTasks() {
-    return taskService.getTasks();
+  public ResponseEntity<List<TaskDTO>> getTasks() {
+    List<TaskDTO> tasks = taskService.getTasks();
+    
+    return ResponseEntity.ok(tasks);
   }
   
   @GetMapping(path = "{taskId}")
-  public String getTask(@PathVariable Long taskId) {
-    return taskService.getTask(taskId).toString();
+  public ResponseEntity<TaskDTO> getTask(@PathVariable Long taskId) {
+    return ResponseEntity.ok(taskService.getTask(taskId));
   }
 
   @GetMapping(path = "user/{userId}")
-  public List<Task> getTasksByUser(@PathVariable Long userId) {
+  public ResponseEntity<List<TaskDTO>> getTasksByUser(@PathVariable Long userId) {
+    System.out.println("userId: " + userId);
     User user = UserService.getUser(userId,userRepository);
-    return taskService.getTasksByUser(user);
+    return ResponseEntity.ok(taskService.getTasksByUser(user));
   }
 
 
   @PutMapping(path = "{taskId}")
-  public String updateTask(@RequestBody Task task, @RequestHeader("Authorization") String token, @PathVariable Long taskId) {
+  public ResponseEntity<Map<String,String>> updateTask(@RequestBody Task task, @RequestHeader("Authorization") String token, @PathVariable Long taskId) {
+    Map<String, String> responseBody = new HashMap<>();
     if (!isAuthorized(token, taskId)) {
-      return "Unauthorized";
+      responseBody.put("message", "Unauthorized");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
     }
-    return taskService.updateTask(task, taskId);
+    responseBody.put("message", taskService.updateTask(task, taskId));
+    return ResponseEntity.ok(responseBody);
   }
 
   @DeleteMapping(path = "{taskId}")
-  public String deleteTask(@PathVariable Long taskId, @RequestHeader("Authorization") String token) {
+  public ResponseEntity<Map<String,String>> deleteTask(@PathVariable Long taskId, @RequestHeader("Authorization") String token) {
+        Map<String, String> responseBody = new HashMap<>();
     if (!isAuthorized(token, taskId)) {
-      return "Unauthorized";
+      responseBody.put("message", "Unauthorized");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
     }
-    return taskService.deleteTask(taskId);
+    responseBody.put("message", taskService.deleteTask(taskId));
+    return ResponseEntity.ok(responseBody);
   }
 
 
@@ -83,7 +89,8 @@ public class TaskController {
     if (jwt.isTokenExpired(token)) {
       return false;
     }
-    String taskUsername = taskService.getTask(taskId).getUser().getUsername();
+    Long taskUserId = taskService.getTask(taskId).getUserId();
+    String taskUsername = UserService.getUser(taskUserId,userRepository).getUsername();
     String TokenUsername = jwt.getUsernameFromToken(token);
     if (!taskUsername.equals(TokenUsername)) {
       return false;
