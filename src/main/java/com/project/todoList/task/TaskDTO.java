@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskDTO {
+public class TaskDTO extends Task{
   private long id;
   private String title;
   private String description;
@@ -109,6 +109,10 @@ public class TaskDTO {
     this.userId = userId;
   }
 
+  public static TaskDTO convert(Task task) {
+    return new TaskDTO(task);
+  }
+  
   public static List<TaskDTO> convert(List<Task> tasks) {
     List<TaskDTO> tasksDTO = new ArrayList<>();
     for (Task task : tasks) {

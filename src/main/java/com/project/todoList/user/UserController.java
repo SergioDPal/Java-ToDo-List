@@ -33,12 +33,19 @@ public class UserController {
   }
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Map<String,String>> getUser(@RequestBody User user) {
-    User dbUser = userService.getUser(user);
+  public ResponseEntity<Map<String, String>> getUser(@RequestBody UserDTO user) {
     Map<String, String> response = new HashMap<>();
-    response.put("username", dbUser.getUsername());
-    response.put("email", dbUser.getEmail());
-    return ResponseEntity.ok(response);
+         
+    try {
+      UserDTO dbUser = userService.getUserDTO(user);
+      response.put("username", dbUser.getUsername());
+      response.put("email", dbUser.getEmail());
+      return ResponseEntity.ok(response);
+
+    } catch (Exception e) {
+      response.put("message", e.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
   }
 
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)

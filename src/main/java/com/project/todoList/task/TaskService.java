@@ -33,31 +33,33 @@ public class TaskService {
     throw new IllegalStateException("Task not found");
   }
 
-  public String createTask(Task task) {
-
-    taskRepository.save(task);
-    return "Task created";
+  public TaskDTO createTask(TaskDTO taskDTO) {
+    Task savedTask = taskRepository.save(Task.convert(taskDTO));
+    TaskDTO savedTaskDTO = TaskDTO.convert(savedTask);
+    return savedTaskDTO;
   }
 
-  public String updateTask(Task task, Long taskId) {
+  public TaskDTO updateTask(TaskDTO taskDTO, Long taskId) throws Exception {
     Optional<Task> taskToUpdate = taskRepository.findById(taskId);
-    if (taskToUpdate.isPresent()) {
-      if (task.getTitle() != null) {
-        taskToUpdate.get().setTitle(task.getTitle());
+    try {
+      if (taskDTO.getTitle() != null) {
+        taskToUpdate.get().setTitle(taskDTO.getTitle());
       }
-      if (task.getDescription() != null) {
-        taskToUpdate.get().setDescription(task.getDescription());
+      if (taskDTO.getDescription() != null) {
+        taskToUpdate.get().setDescription(taskDTO.getDescription());
       }
-      if (task.getDueDate() != null) {
-        taskToUpdate.get().setDueDate(task.getDueDate());
+      if (taskDTO.getDueDate() != null) {
+        taskToUpdate.get().setDueDate(taskDTO.getDueDate());
       }
-      if (task.getStatus() != null) {
-        taskToUpdate.get().setStatus(task.getStatus());
+      if (taskDTO.getStatus() != null) {
+        taskToUpdate.get().setStatus(taskDTO.getStatus());
       }
       taskRepository.save(taskToUpdate.get());
-      return "Task updated";
+
+      return new TaskDTO(taskToUpdate.get());
+    } catch (Exception e) {
+      throw new Exception("Task not found");
     }
-    return "Task not found";
   }
 
   public String deleteTask(Long taskId) {

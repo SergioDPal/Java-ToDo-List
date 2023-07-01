@@ -1,6 +1,6 @@
 package com.project.todoList.user;
 
-public class UserDTO {
+public class UserDTO extends User{
 
   private String token;
   private String username;
@@ -26,6 +26,11 @@ public class UserDTO {
     this.id = id;
   }
   
+  public UserDTO(String username, String email) {
+    this.username = username;
+    this.email = email;
+  }
+
   public String getToken() {
     return token;
   }
@@ -57,8 +62,15 @@ public class UserDTO {
   public void setMessage(String message) {
     this.message = message;
   }
+
   public String getMessage() {
     return message;
+  }
+
+  @Override
+  public String toString() {
+    return "{token=" + token + ", username=" + username + ", email=" + email + ", message=" + message
+        + ", id=" + id + "}";
   }
 
 }

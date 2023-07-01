@@ -27,18 +27,15 @@ public class TaskController {
   }
 
   @PostMapping
-  public ResponseEntity<Map<String,String>> createTask(@RequestBody Task task, @RequestHeader("Authorization") String token) {
+  public ResponseEntity<TaskDTO> createTask(@RequestBody TaskDTO taskDTO, @RequestHeader("Authorization") String token) {
     JwtTokenUtil jwt = new JwtTokenUtil(); 
-    Map<String, String> responseBody = new HashMap<>();
     if (jwt.isTokenExpired(token)) {
-      responseBody.put("message", "Unauthorized");
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
     String username = jwt.getUsernameFromToken(token);
     User user = UserService.getUser(username,userRepository);
-    task.setUser(user);
-    responseBody.put("message", taskService.createTask(task));
-    return ResponseEntity.ok(responseBody);
+    taskDTO.setUser(user);
+    return ResponseEntity.ok(taskService.createTask(taskDTO));
   }
 
   @GetMapping
@@ -62,14 +59,16 @@ public class TaskController {
 
 
   @PutMapping(path = "{taskId}")
-  public ResponseEntity<Map<String,String>> updateTask(@RequestBody Task task, @RequestHeader("Authorization") String token, @PathVariable Long taskId) {
-    Map<String, String> responseBody = new HashMap<>();
-    if (!isAuthorized(token, taskId)) {
-      responseBody.put("message", "Unauthorized");
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+  public ResponseEntity<TaskDTO> updateTask(@RequestBody TaskDTO taskDTO, @RequestHeader("Authorization") String token, @PathVariable Long taskId) {
+    if (isAuthorized(token, taskId)) {
+      try {
+        return ResponseEntity.ok(taskService.updateTask(taskDTO, taskId));
+      } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+      }
+    } else {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
-    responseBody.put("message", taskService.updateTask(task, taskId));
-    return ResponseEntity.ok(responseBody);
   }
 
   @DeleteMapping(path = "{taskId}")

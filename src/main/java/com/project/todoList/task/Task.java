@@ -26,7 +26,6 @@ public class Task {
   private String description;
   private String status;
   private String priority;
-  //we declare the dueDate using java.time.LocalDate
   private LocalDate dueDate;
 
   @ManyToOne(optional = false)
@@ -55,12 +54,24 @@ public class Task {
     this.user = user;
   }
 
-    public Task( String title, String description, String status, String priority, LocalDate dueDate) {
+  public Task(String title, String description, String status, String priority, LocalDate dueDate) {
     this.title = title;
     this.description = description;
     this.status = status;
     this.priority = priority;
     this.dueDate = dueDate;
+  }
+  
+  public static Task convert(TaskDTO taskDTO) {
+    return new Task(
+      taskDTO.getId(),
+      taskDTO.getTitle(),
+      taskDTO.getDescription(),
+      taskDTO.getStatus(),
+      taskDTO.getPriority(),
+      taskDTO.getDueDate(),
+      taskDTO.getUser()
+    );
   }
   public Long getId() { return id; }
   public void setId(Long id) { this.id = id; }

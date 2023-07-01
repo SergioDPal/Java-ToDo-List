@@ -22,22 +22,49 @@ public class UserService {
     return userRepository;
   }
 
-  public User getUser(User user) {
+  public UserDTO getUserDTO(UserDTO user) throws Exception {
     Optional<User> userFromEmail = userRepository.findUserByEmail(user.getEmail());
-    if (userFromEmail.isPresent()) {
-      return userFromEmail.get();
+    try {
+      UserDTO userDTO = new UserDTO(userFromEmail.get().getUsername(), userFromEmail.get().getEmail());
+      return userDTO;
+    } catch (Exception e) {
+      throw new Exception("User not found");
     }
-    throw new IllegalStateException("User not found");
   }
 
+  public UserDTO getUserDTO(String username) throws Exception {
+    Optional<User> userFromUsername = userRepository.findUserByUsername(username);
+    try {
+      UserDTO userDTO = new UserDTO(userFromUsername.get().getUsername(), userFromUsername.get().getEmail());
+      return userDTO;
+    } catch (Exception e) {
+      throw new Exception("User not found");
+    }
+  }
+  
+  public UserDTO getUserDTO(Long userId) throws Exception {
+    Optional<User> userFromId = userRepository.findUserById(userId);
+    try {
+      UserDTO userDTO = new UserDTO(userFromId.get().getUsername(), userFromId.get().getEmail());
+      return userDTO;
+    } catch (Exception e) {
+      throw new Exception("User not found");
+    }
+  }
+  
   public static User getUser(Long userId,UserRepository userRepository) {
-    Optional<User> user = userRepository.findUserById(userId);
-    return user.get();
+    Optional<User> userOptional = userRepository.findUserById(userId);
+    return userOptional.get();
   }
 
-    public static User getUser(String username,UserRepository userRepository) {
-    Optional<User> user = userRepository.findUserByUsername(username);
-    return user.get();
+  public static User getUser(String username, UserRepository userRepository) {
+    Optional<User> userOptional = userRepository.findUserByUsername(username);
+    return userOptional.get();
+  }
+
+  public static User getUser(User user, UserRepository userRepository) {
+    Optional<User> userOptional = userRepository.findUserByEmail(user.getEmail());
+    return userOptional.get();
   }
 
   public String createUser(User user) {
@@ -51,12 +78,8 @@ public class UserService {
   }
 
   public String deleteUser(Long userId) {
-    Optional<User> user = userRepository.findUserById(userId);
-    if (user.isPresent()) {
-      userRepository.delete(user.get());
+      userRepository.delete(getUser(userId,userRepository));
       return "User deleted";
-    }
-    return "User not found";
   }
 
   public String updateUser(Map<String,String> userData, Long userId) {
